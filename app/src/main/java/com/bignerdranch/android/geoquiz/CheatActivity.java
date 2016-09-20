@@ -1,11 +1,15 @@
 package com.bignerdranch.android.geoquiz;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -19,6 +23,8 @@ public class CheatActivity extends AppCompatActivity {
     private boolean mCheated;
 
     private TextView mAnswerTextView;
+    private TextView mBuildVersionTextView;
+    private int mBuildVersion;
     private Button mShowAnswer;
 
     public static Intent newIntent(Context packageContext, boolean answerIsTrue) {
@@ -42,6 +48,11 @@ public class CheatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate() called");
         setContentView(R.layout.activity_cheat);
+
+        // Display the API level of the current user's device
+        mBuildVersionTextView = (TextView) findViewById(R.id.build_version);
+        mBuildVersion = Build.VERSION.SDK_INT;
+        mBuildVersionTextView.setText("API level " + mBuildVersion);
 
         mAnswerIsTrue = getIntent().getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false);
         mAnswerTextView = (TextView) findViewById(R.id.answerTextView);
@@ -74,6 +85,29 @@ public class CheatActivity extends AppCompatActivity {
                     mAnswerTextView.setText(R.string.false_button);
                 }
                 setAnswerShownResult(mCheated);
+
+                // Requires API level 21
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    int cx = mShowAnswer.getWidth() / 2;
+                    int cy = mShowAnswer.getHeight() / 2;
+                    float radius = mShowAnswer.getWidth();
+                    Animator anim = ViewAnimationUtils.
+                            createCircularReveal(mShowAnswer, cx, cy, radius, 0);
+                    anim.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mAnswerTextView.setVisibility(View.VISIBLE);
+                            mShowAnswer.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                    anim.start();
+                }
+                //Otherwise show default "animation"
+                else {
+                    mAnswerTextView.setVisibility(View.VISIBLE);
+                    mShowAnswer.setVisibility(View.INVISIBLE);
+                }
             }
         });
     }

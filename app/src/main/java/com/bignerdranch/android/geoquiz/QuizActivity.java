@@ -3,6 +3,7 @@ package com.bignerdranch.android.geoquiz;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -27,12 +28,14 @@ public class QuizActivity extends AppCompatActivity {
     private static final String CHEAT_STATUS = "status";
     private static final int REQUEST_CODE_CHEAT = 0;
 
+    private TextView mQuestionTextView;
+    private TextView mBuildVersionTextView;
+    private int mBuildVersion;
     private Button mTrueButton;
     private Button mFalseButton;
     private Button mCheatButton;
     private Button mNextButton;
     private Button mPrevButton;
-    private TextView mQuestionTextView;
 
     private Question[] mQuestionBank = new Question[]{
             new Question(R.string.question_oceans, true),
@@ -88,6 +91,11 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_quiz);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Display the API level of the current user's device
+        mBuildVersionTextView = (TextView) findViewById(R.id.build_version);
+        mBuildVersion = Build.VERSION.SDK_INT;
+        mBuildVersionTextView.setText("API level " + mBuildVersion);
 
         // Retrieve the current index & cheat status from the previous instance
         if (savedInstanceState != null) {
